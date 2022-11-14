@@ -10,6 +10,7 @@ import gr.uagean.palaemonstiumapi.service.DBProxyService;
 import gr.uagean.palaemonstiumapi.service.SitumRtlService;
 import gr.uagean.palaemonstiumapi.service.SitumService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -37,18 +38,21 @@ public class SitumRtlServiceImpl implements SitumRtlService {
     @Override
     @Scheduled(fixedRate = 5000)
     public void importAndHandleLocationData() {
-        if (geofencesSingleton.getGeofences() == null) {
-            log.info("Geofences not found... fetching before parsing locations");
-            this.situmService.getAllGeofences().subscribe(geofenceResponse -> {
-                //                    log.info(situmLocationResponse.toString());
-                geofencesSingleton.setGeofences(geofenceResponse);
-                situmService.getAllLocations().subscribe(this::handleLocationData);
-            });
-        } else {
+        if(!StringUtils.isEmpty(System.getenv().get("LOCATION_FETCHER")) ){
+            if (geofencesSingleton.getGeofences() == null) {
+                log.info("Geofences not found... fetching before parsing locations");
+                this.situmService.getAllGeofences().subscribe(geofenceResponse -> {
+                    //                    log.info(situmLocationResponse.toString());
+                    geofencesSingleton.setGeofences(geofenceResponse);
+                    situmService.getAllLocations().subscribe(this::handleLocationData);
+                });
+            } else {
 //            this.situmService.getAllGeofences().subscribe(geofenceResponse -> {
-            situmService.getAllLocations().subscribe(this::handleLocationData);
+                situmService.getAllLocations().subscribe(this::handleLocationData);
 //            });
+            }
         }
+
     }
 
 

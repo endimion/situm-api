@@ -15,6 +15,7 @@ services:
       - DBPROXY_OAUTH_URI=https://dss1.aegean.gr/auth/realms/palaemon/protocol/openid-connect/token
       - DBPROXY_URI=http://localhost:8090/
       - LOCATION_SERVICE_URL=http://dss.aegean.gr:7011/
+      - LOCATION_FETCHER=true
     ports:
       - 8081:8083
 
