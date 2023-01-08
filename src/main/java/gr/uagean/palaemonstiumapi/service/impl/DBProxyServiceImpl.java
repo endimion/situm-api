@@ -59,6 +59,10 @@ public class DBProxyServiceImpl implements DBProxyService {
 
     @Override
     public Mono<String> uploadLocation(LocationTO locationTO) {
+
+        log.info("uploading location geofence {} location{}", locationTO.getGeofence().getGfName(),
+                locationTO.getLocation().getXLocation() + "," + locationTO.getLocation().getYLocation());
+
         return this.getAccessToken().flatMap(token -> {
             WebClient client = WebClient.builder()
                     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE).build();

@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 public interface SitumService {
 
     //Get all realtime users positions of an organization.
-    public Mono<SitumLocationResponse> getAllLocations();
+    public Mono<SitumLocationResponse> getUsersLocations();
 
     public Mono<String> getAllBuildings();
 

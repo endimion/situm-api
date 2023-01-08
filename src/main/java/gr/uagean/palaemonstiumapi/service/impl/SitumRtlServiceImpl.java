@@ -38,17 +38,17 @@ public class SitumRtlServiceImpl implements SitumRtlService {
     @Override
     @Scheduled(fixedRate = 5000)
     public void importAndHandleLocationData() {
-        if(!StringUtils.isEmpty(System.getenv().get("LOCATION_FETCHER")) ){
+        if (!StringUtils.isEmpty(System.getenv().get("LOCATION_FETCHER"))) {
             if (geofencesSingleton.getGeofences() == null) {
                 log.info("Geofences not found... fetching before parsing locations");
                 this.situmService.getAllGeofences().subscribe(geofenceResponse -> {
                     //                    log.info(situmLocationResponse.toString());
                     geofencesSingleton.setGeofences(geofenceResponse);
-                    situmService.getAllLocations().subscribe(this::handleLocationData);
+                    situmService.getUsersLocations().subscribe(this::handleLocationData);
                 });
             } else {
 //            this.situmService.getAllGeofences().subscribe(geofenceResponse -> {
-                situmService.getAllLocations().subscribe(this::handleLocationData);
+                situmService.getUsersLocations().subscribe(this::handleLocationData);
 //            });
             }
         }
@@ -80,14 +80,17 @@ public class SitumRtlServiceImpl implements SitumRtlService {
             LocationTO wrappedLocation = Wrappers.wrapSitumLocationFeatureToLocationTO(locationFeature, matchingGeofenceName);
 
             log.info("location {} belongs to geofence {} for user {} {}",
-                    locationFeature.getGeometry().getCoordinates(), matchingGeofenceName, wrappedLocation.getMacAddress(),
+                    wrappedLocation.getLocation().getXLocation() + "," + wrappedLocation.getLocation().getYLocation(),
+                    matchingGeofenceName, wrappedLocation.getMacAddress(),
                     wrappedLocation.getHashedMacAddress());
-//            if (wrappedLocation != null) {
-//                        log.info(wrappedLocation.toString());
-            this.dbProxyService.uploadLocation(wrappedLocation).subscribe(log::info);
-//            }
+            if (!StringUtils.isEmpty(matchingGeofenceName)) {
+                this.dbProxyService.uploadLocation(wrappedLocation).subscribe(log::info);
+
+            } else {
+                log.error("could not assign a geofence to the location {},{}",
+                        wrappedLocation.getLocation().getXLocation(), wrappedLocation.getLocation().getYLocation());
+            }
         });
-//        });
     }
 
 }

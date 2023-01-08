@@ -30,8 +30,12 @@ public class Wrappers {
         locationTO.setHashedMacAddress(DigestUtils.sha256Hex(feature.getId()));
 
         //Location
-        userLocationUnit.setXLocation(String.valueOf(feature.getGeometry().getCoordinates()[0]));
-        userLocationUnit.setYLocation((String.valueOf(feature.getGeometry().getCoordinates()[1])));
+        userLocationUnit.setXLocation(String.valueOf(feature.getProperties().getLocalCoordinates()[0]));
+        userLocationUnit.setYLocation((String.valueOf(feature.getProperties().getLocalCoordinates()[1])));
+//        log.info("local coordinates {}, {}", feature.getProperties().getLocalCoordinates()[0], feature.getProperties().getLocalCoordinates()[1]);
+//        log.info("geometry coordinates {}, {}", feature.getGeometry().getCoordinates()[0], feature.getGeometry().getCoordinates()[1]);
+
+
         userLocationUnit.setHashedMacAddress(DigestUtils.sha256Hex(feature.getId()));
         userLocationUnit.setCampusId("");
         userLocationUnit.setFloorId(feature.getProperties().getFloorId());

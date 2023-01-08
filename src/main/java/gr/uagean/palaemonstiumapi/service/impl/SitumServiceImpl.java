@@ -9,12 +9,16 @@ import gr.uagean.palaemonstiumapi.model.singletons.SitumBuildingSingleton;
 import gr.uagean.palaemonstiumapi.service.SitumAccessTokenService;
 import gr.uagean.palaemonstiumapi.service.SitumService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -24,6 +28,7 @@ public class SitumServiceImpl implements SitumService {
     private final SitumBuildingSingleton situmBuildingSingleton;
 
     private final GeofencesSingleton geofencesSingleton;
+
 
     @Autowired
     public SitumServiceImpl(SitumAccessTokenService accessTokenService, SitumBuildingSingleton situmBuildingSingleton,
@@ -35,7 +40,7 @@ public class SitumServiceImpl implements SitumService {
 
 
     @Override
-    public Mono<SitumLocationResponse> getAllLocations() {
+    public Mono<SitumLocationResponse> getUsersLocations() {
         return this.getAllBuildings().flatMap(buildingId -> {
             return accessTokenService.getAPIAccessToken().flatMap(token -> {
                 WebClient client = WebClient.builder()
@@ -100,8 +105,17 @@ public class SitumServiceImpl implements SitumService {
                 try {
                     SitumBuildingResp[] buildings = mapper.readValue(s, SitumBuildingResp[].class);
                     if (buildings.length > 0) {
-                        situmBuildingSingleton.setBuildingId(buildings[0].getId());
-                        return Mono.just(buildings[0].getId());
+
+                        Optional<SitumBuildingResp> matchingBuilding =
+                                Arrays.stream(buildings).filter(builds -> builds.getId().equals(Constants.BUILDING_ID)).findFirst();
+                        if (matchingBuilding.isEmpty()) {
+                            throw new ArrayIndexOutOfBoundsException("building " + Constants.BUILDING_ID + " not found");
+                        }
+
+                        situmBuildingSingleton.setBuildingId(matchingBuilding.get().getId());
+                        return Mono.just(matchingBuilding.get().getId());
+                    } else {
+                        throw new ArrayIndexOutOfBoundsException("buildings array is empty");
                     }
                 } catch (Exception e) {
                     log.error(e.getMessage());

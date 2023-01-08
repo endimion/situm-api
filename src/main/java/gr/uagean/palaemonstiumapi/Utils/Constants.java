@@ -1,5 +1,7 @@
 package gr.uagean.palaemonstiumapi.Utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Constants {
 
     public final static String ACCESS_TOKEN_URI = System.getenv("ACCESS_TOKEN_URI") != null ?
@@ -31,6 +33,8 @@ public class Constants {
     public static final String LOCATION_SERVICE_URL =System.getenv("LOCATION_SERVICE_URL") != null ? System.getenv("LOCATION_SERVICE_URL") :
             "http://dss.aegean.gr:7011/";
 //
+
+    public final static String BUILDING_ID = StringUtils.isEmpty(System.getenv("BUILDING_ID"))?"12301":System.getenv("BUILDING_ID");
 
 
 }
